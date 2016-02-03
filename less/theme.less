@@ -1,0 +1,15 @@
+#bin-menu {
+  .color-picker-block {
+    display: inline-block;
+    width: 42px;
+    height: 42px;
+    margin: 10px 20px 10px 0;
+    border: 3px inset;
+    transition: transform 250ms ease, border 250ms ease;
+
+    &.active {
+      border: 3px outset;
+      transform: scale(1.2);
+    }
+  }
+}

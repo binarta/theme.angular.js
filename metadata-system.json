@@ -1,0 +1,24 @@
+{
+  "msgs":{
+    "nl":{
+      "theme.color.picker.select.title": "Selecteer themakleur:",
+      "theme.color.picker.selected.color": "Geselecteerde kleur:",
+      "theme.color.picker.invalid.color": "Ongeldige kleur"
+    },
+    "en":{
+      "theme.color.picker.select.title": "Select theme color:",
+      "theme.color.picker.selected.color": "Selected color:",
+      "theme.color.picker.invalid.color": "Invalid color"
+    },
+    "fr":{
+      "theme.color.picker.select.title": "Select theme color:",
+      "theme.color.picker.selected.color": "Selected color:",
+      "theme.color.picker.invalid.color": "Invalid color"
+    },
+    "de":{
+      "theme.color.picker.select.title": "Select theme color:",
+      "theme.color.picker.selected.color": "Selected color:",
+      "theme.color.picker.invalid.color": "Invalid color"
+    }
+  }
+}
