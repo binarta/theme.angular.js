@@ -63,7 +63,7 @@ describe('bin.theme', function () {
 
                 $rootScope.$digest();
 
-                expect(color).toEqual('#000');
+                expect(color).toEqual(predefinedColors[0]);
             });
 
             [
@@ -80,11 +80,11 @@ describe('bin.theme', function () {
                 {actual: 'theme-option-11', expected: predefinedColors[10]},
                 {actual: 'theme-option-12', expected: predefinedColors[11]},
                 {actual: 'theme-option-13', expected: predefinedColors[12]},
-                {actual: 'theme-option-14', expected: '#000'},
+                {actual: 'theme-option-14', expected: predefinedColors[0]},
                 {actual: '#ffffff', expected: '#ffffff'},
                 {actual: '#dcda50', expected: '#dcda50'},
                 {actual: '#000', expected: '#000'},
-                {actual: 'invalid', expected: '#000'}
+                {actual: 'invalid', expected: predefinedColors[0]}
             ].forEach(function (test) {
                 it('when config value is ' + test.actual + ', expect ' + test.expected, function () {
                     configReaderDeferred.resolve({data: {value: test.actual}});

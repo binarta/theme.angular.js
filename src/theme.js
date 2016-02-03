@@ -13,8 +13,8 @@
 
     function binThemeService($q, reader, writer) {
         var self = this;
-        this.defaultColor = '#000';
         this.predefinedColors = ['#6abd45','#40b040','#338d7b','#dcda50','#dcc450','#dca850','#dc9150','#dc6950','#b94379','#7f3891','#554398','#3d6091'];
+        var defaultColor = self.predefinedColors[0];
 
         this.getPrimaryColor = function () {
             var deferred = $q.defer();
@@ -24,16 +24,16 @@
                 scope: 'public',
                 key: 'theme.primary.color'
             }).then(function (result) {
-                var c = self.defaultColor;
+                var c = defaultColor;
                 if (isValidHexColor(result.data.value)) c = result.data.value;
                 else if (isLegacyThemeOption(result.data.value)) {
                     var count = result.data.value.replace('theme-option-', '') - 1;
-                    c = count <= self.predefinedColors.length ? self.predefinedColors[count] : self.defaultColor;
+                    c = count <= self.predefinedColors.length ? self.predefinedColors[count] : defaultColor;
                 }
 
                 deferred.resolve(c);
             }, function () {
-                deferred.resolve(self.defaultColor);
+                deferred.resolve(defaultColor);
             });
 
             return deferred.promise;
