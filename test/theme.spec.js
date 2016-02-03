@@ -199,6 +199,19 @@ describe('bin.theme', function () {
                 });
             });
         });
+
+        describe('on toRgb', function () {
+            [
+                {actual: '#abc', expected: '170,187,204'},
+                {actual: '#ffffff', expected: '255,255,255'},
+                {actual: '#000000', expected: '0,0,0'},
+                {actual: '#3f83a3', expected: '63,131,163'}
+            ].forEach(function (test) {
+                it('convert color ' + test.actual + ' to rgb', function () {
+                    expect(theme.toRgb(test.actual)).toEqual(test.expected);
+                });
+            });
+        });
     });
 
     describe('colorPicker controller', function () {

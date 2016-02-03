@@ -61,7 +61,7 @@
         };
 
         this.shadeColor = function (color, percent) {
-            if (color.length == 4) color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+            color = normalizeHex(color);
             percent = percent / 100;
             var f = parseInt(color.slice(1), 16),
                 t = percent < 0 ? 0 : 255,
@@ -74,6 +74,17 @@
                 BB = (Math.round((t - B) * p) + B);
             return "#" + (RR + GG + BB).toString(16).slice(1);
         };
+
+        this.toRgb = function (hex) {
+            hex = normalizeHex(hex);
+            var f = parseInt(hex.slice(1), 16);
+            return (f >> 16) + ',' + (f >> 8 & 0x00FF) + ',' + (f & 0x0000FF);
+        };
+
+        function normalizeHex(hex) {
+            if (hex.length == 4) return '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+            return hex;
+        }
 
         function isValidHexColor(color) {
             return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color);
