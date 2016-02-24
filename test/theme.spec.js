@@ -1,5 +1,5 @@
 describe('bin.theme', function () {
-    var $rootScope, configReader, configWriter, configReaderDeferred, configWriterDeferred, editModeRenderer, theme;
+    var $rootScope, config, configReader, configWriter, configReaderDeferred, configWriterDeferred, editModeRenderer, theme;
 
     var predefinedColors = ['#6abd45','#40b040','#338d7b','#dcda50','#dcc450','#dca850','#dc9150','#dc6950','#b94379','#7f3891','#554398','#3d6091'];
 
@@ -21,8 +21,9 @@ describe('bin.theme', function () {
 
     beforeEach(module('bin.theme'));
 
-    beforeEach(inject(function (_$rootScope_, _configReader_, _configWriter_, _editModeRenderer_, binTheme) {
+    beforeEach(inject(function (_$rootScope_, _config_, _configReader_, _configWriter_, _editModeRenderer_, binTheme) {
         $rootScope = _$rootScope_;
+        config = _config_;
         configReader = _configReader_;
         configWriter = _configWriter_;
         editModeRenderer = _editModeRenderer_;
@@ -58,12 +59,30 @@ describe('bin.theme', function () {
                 });
             });
 
-            it('when no config value, use default color', function () {
-                configReaderDeferred.reject();
+            describe('when no config value', function () {
+                describe('and default value defined in config', function () {
+                    beforeEach(function () {
+                        config.defaultPrimaryColor = '#cccccc';
+                        configReaderDeferred.reject();
+                        $rootScope.$digest();
+                    });
 
-                $rootScope.$digest();
+                    it('use default color', function () {
+                        expect(color).toEqual('#cccccc');
+                    });
+                });
 
-                expect(color).toEqual(predefinedColors[0]);
+                describe('and no default value defined in config', function () {
+                    beforeEach(function () {
+                        config.defaultPrimaryColor = undefined;
+                        configReaderDeferred.reject();
+                        $rootScope.$digest();
+                    });
+
+                    it('use default color', function () {
+                        expect(color).toEqual(predefinedColors[0]);
+                    });
+                });
             });
 
             [

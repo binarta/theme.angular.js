@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('bin.theme', ['config', 'toggle.edit.mode'])
-        .service('binTheme', ['$q', 'configReader', 'configWriter', binThemeService])
+        .service('binTheme', ['$q', 'config', 'configReader', 'configWriter', binThemeService])
         .controller('colorPickerController', ['$rootScope', 'editModeRenderer', 'binTheme', colorPickerController])
         .run(['$rootScope', 'binTheme', function ($rootScope, theme) {
             if (!$rootScope.theme) $rootScope.theme = {};
@@ -11,7 +11,7 @@
             });
         }]);
 
-    function binThemeService($q, reader, writer) {
+    function binThemeService($q, config, reader, writer) {
         var self = this;
         this.predefinedColors = ['#6abd45','#40b040','#338d7b','#dcda50','#dcc450','#dca850','#dc9150','#dc6950','#b94379','#7f3891','#554398','#3d6091'];
         var defaultColor = self.predefinedColors[0];
@@ -33,7 +33,7 @@
 
                 deferred.resolve(c);
             }, function () {
-                deferred.resolve(defaultColor);
+                deferred.resolve(config.defaultPrimaryColor || defaultColor);
             });
 
             return deferred.promise;
