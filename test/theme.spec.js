@@ -1,7 +1,7 @@
 describe('bin.theme', function () {
-    var $rootScope, config, configReader, configWriter, configReaderDeferred, configWriterDeferred, editModeRenderer, theme;
+    var $rootScope, binarta, config, configReader, configWriter, configReaderDeferred, configWriterDeferred, editModeRenderer, theme;
 
-    var predefinedColors = ['#6abd45','#40b040','#338d7b','#dcda50','#dcc450','#dca850','#dc9150','#dc6950','#b94379','#7f3891','#554398','#3d6091'];
+    var predefinedColors = ['#6abd45', '#40b040', '#338d7b', '#dcda50', '#dcc450', '#dca850', '#dc9150', '#dc6950', '#b94379', '#7f3891', '#554398', '#3d6091'];
 
     angular.module('config', [])
         .value('config', {})
@@ -21,8 +21,9 @@ describe('bin.theme', function () {
 
     beforeEach(module('bin.theme'));
 
-    beforeEach(inject(function (_$rootScope_, _config_, _configReader_, _configWriter_, _editModeRenderer_, binTheme) {
+    beforeEach(inject(function (_$rootScope_, _binarta_, _config_, _configReader_, _configWriter_, _editModeRenderer_, binTheme) {
         $rootScope = _$rootScope_;
+        binarta = _binarta_;
         config = _config_;
         configReader = _configReader_;
         configWriter = _configWriter_;
@@ -30,88 +31,83 @@ describe('bin.theme', function () {
         theme = binTheme;
     }));
 
-    describe('on run', function () {
-        it('put primary color on rootScope', function () {
-            configReaderDeferred.resolve({data: {value: '#ccc'}});
+    afterEach(function() {
+        config.defaultPrimaryColor = undefined;
+    });
 
-            $rootScope.$digest();
+    describe('on module startup', function () {
+        describe('given binarta is not yet initialised', function () {
+            beforeEach(function () {
+                $rootScope.$digest();
+            });
 
-            expect($rootScope.theme.color.primary).toEqual('#ccc');
+            it('root scope is unaffected', function () {
+                expect($rootScope.theme).toBeUndefined();
+            });
+        });
+
+        describe('given binarta is initialised', function () {
+            beforeEach(inject(function (binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised) {
+                binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
+                binartaCachesAreInitialised.resolve();
+            }));
+
+            it('then theme is exposed on root scope', function () {
+                binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: '#ccc'});
+                $rootScope.$digest();
+                expect($rootScope.theme.color.primary).toEqual('#ccc');
+            });
         });
     });
 
     describe('theme service', function () {
-        describe('on get primary color', function () {
-            var color;
-            beforeEach(function () {
-                color = undefined;
+        var spy;
 
-                theme.getPrimaryColor().then(function (result) {
-                    color = result;
-                });
-            });
+        beforeEach(function() {
+            binarta.application.gateway.clear();
+            binarta.application.config.clear();
+            spy = jasmine.createSpy('spy');
+        });
 
-            it('read primary theme color from config', function () {
-                expect(configReader).toHaveBeenCalledWith({
-                    $scope: {},
-                    scope: 'public',
-                    key: 'theme.primary.color'
-                });
-            });
+        it('get primary color returns default primary color from angular config when none has been configured in the application config', function () {
+            config.defaultPrimaryColor = '#cccccc';
+            theme.getPrimaryColor().then(spy);
+            $rootScope.$digest();
+            expect(spy).toHaveBeenCalledWith('#cccccc');
+        });
 
-            describe('when no config value', function () {
-                describe('and default value defined in config', function () {
-                    beforeEach(function () {
-                        config.defaultPrimaryColor = '#cccccc';
-                        configReaderDeferred.reject();
-                        $rootScope.$digest();
-                    });
+        it('get primary color returns default color when none has been configured in the angular and application config', function () {
+            theme.getPrimaryColor().then(spy);
+            $rootScope.$digest();
+            expect(spy).toHaveBeenCalledWith(predefinedColors[0]);
+        });
 
-                    it('use default color', function () {
-                        expect(color).toEqual('#cccccc');
-                    });
-                });
-
-                describe('and no default value defined in config', function () {
-                    beforeEach(function () {
-                        config.defaultPrimaryColor = undefined;
-                        configReaderDeferred.reject();
-                        $rootScope.$digest();
-                    });
-
-                    it('use default color', function () {
-                        expect(color).toEqual(predefinedColors[0]);
-                    });
-                });
-            });
-
-            [
-                {actual: 'theme-option-1', expected: predefinedColors[0]},
-                {actual: 'theme-option-2', expected: predefinedColors[1]},
-                {actual: 'theme-option-3', expected: predefinedColors[2]},
-                {actual: 'theme-option-4', expected: predefinedColors[3]},
-                {actual: 'theme-option-5', expected: predefinedColors[4]},
-                {actual: 'theme-option-6', expected: predefinedColors[5]},
-                {actual: 'theme-option-7', expected: predefinedColors[6]},
-                {actual: 'theme-option-8', expected: predefinedColors[7]},
-                {actual: 'theme-option-9', expected: predefinedColors[8]},
-                {actual: 'theme-option-10', expected: predefinedColors[9]},
-                {actual: 'theme-option-11', expected: predefinedColors[10]},
-                {actual: 'theme-option-12', expected: predefinedColors[11]},
-                {actual: 'theme-option-13', expected: predefinedColors[12]},
-                {actual: 'theme-option-14', expected: predefinedColors[0]},
-                {actual: '#ffffff', expected: '#ffffff'},
-                {actual: '#dcda50', expected: '#dcda50'},
-                {actual: '#000', expected: '#000'},
-                {actual: 'invalid', expected: predefinedColors[0]}
-            ].forEach(function (test) {
-                it('when config value is ' + test.actual + ', expect ' + test.expected, function () {
-                    configReaderDeferred.resolve({data: {value: test.actual}});
-
-                    $rootScope.$digest();
-
-                    expect(color).toEqual(test.expected);
-                });
+        [
+            {actual: 'theme-option-1', expected: predefinedColors[0]},
+            {actual: 'theme-option-2', expected: predefinedColors[1]},
+            {actual: 'theme-option-3', expected: predefinedColors[2]},
+            {actual: 'theme-option-4', expected: predefinedColors[3]},
+            {actual: 'theme-option-5', expected: predefinedColors[4]},
+            {actual: 'theme-option-6', expected: predefinedColors[5]},
+            {actual: 'theme-option-7', expected: predefinedColors[6]},
+            {actual: 'theme-option-8', expected: predefinedColors[7]},
+            {actual: 'theme-option-9', expected: predefinedColors[8]},
+            {actual: 'theme-option-10', expected: predefinedColors[9]},
+            {actual: 'theme-option-11', expected: predefinedColors[10]},
+            {actual: 'theme-option-12', expected: predefinedColors[11]},
+            {actual: 'theme-option-13', expected: predefinedColors[12]},
+            {actual: 'theme-option-14', expected: predefinedColors[0]},
+            {actual: '#ffffff', expected: '#ffffff'},
+            {actual: '#dcda50', expected: '#dcda50'},
+            {actual: '#000', expected: '#000'},
+            {actual: 'invalid', expected: predefinedColors[0]}
+        ].forEach(function (test) {
+            it('get primary color returns '+test.expected+' when application config specifies ' + test.actual, function () {
+                binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: test.actual});
+                theme.getPrimaryColor().then(spy);
+                $rootScope.$digest();
+                expect(spy).toHaveBeenCalledWith(test.expected);
             });
         });
 
@@ -240,74 +236,106 @@ describe('bin.theme', function () {
             ctrl = $controller('colorPickerController');
         }));
 
-        describe('on open', function () {
-            beforeEach(function () {
-                ctrl.open();
-
-                configReaderDeferred.resolve({data: {value: '#ccc'}});
+        describe('given binarta is initialised', function () {
+            beforeEach(inject(function (binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised) {
+                binartaGatewaysAreInitialised.resolve();
+                binartaConfigIsInitialised.resolve();
+                binartaCachesAreInitialised.resolve();
                 $rootScope.$digest();
-            });
 
-            it('editMode renderer is opened', function () {
-                expect(editModeRenderer.open).toHaveBeenCalledWith({
-                    template: jasmine.any(String),
-                    scope: jasmine.any(Object)
-                });
-            });
+                binarta.application.gateway.clear();
+                binarta.application.config.clear();
+                binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: '#ccc'});
+            }));
 
-            describe('with renderer scope', function () {
-                var scope;
-
+            describe('on open', function () {
                 beforeEach(function () {
-                    scope = editModeRenderer.open.calls.mostRecent().args[0].scope;
+                    ctrl.open();
+                    $rootScope.$digest();
                 });
 
-                it('predefined colors are available', function () {
-                    expect(scope.predefinedColors).toEqual(predefinedColors);
+                it('editMode renderer is opened', function () {
+                    expect(editModeRenderer.open).toHaveBeenCalledWith({
+                        template: jasmine.any(String),
+                        scope: jasmine.any(Object)
+                    });
                 });
 
-                it('initialize selected color', function () {
-                    expect(scope.selectedColor).toEqual('#ccc');
-                });
+                describe('with renderer scope', function () {
+                    var scope;
 
-                it('when new color is selected', function () {
-                    scope.selectColor('#ffffff');
+                    beforeEach(function () {
+                        scope = editModeRenderer.open.calls.mostRecent().args[0].scope;
+                    });
 
-                    expect(scope.selectedColor).toEqual('#ffffff');
-                });
+                    it('predefined colors are available', function () {
+                        expect(scope.predefinedColors).toEqual(predefinedColors);
+                    });
 
-                describe('on save', function () {
-                    describe('with valid color', function () {
-                        var newColor = '#aabbcc';
+                    it('initialize selected color', function () {
+                        expect(scope.selectedColor).toEqual('#ccc');
+                    });
 
-                        beforeEach(function () {
-                            scope.selectedColor = newColor;
-                            scope.save();
-                        });
+                    it('when new color is selected', function () {
+                        scope.selectColor('#ffffff');
 
-                        it('working is on scope', function () {
-                            expect(scope.working).toBeTruthy();
-                        });
+                        expect(scope.selectedColor).toEqual('#ffffff');
+                    });
 
-                        describe('on success', function () {
+                    describe('on save', function () {
+                        describe('with valid color', function () {
+                            var newColor = '#aabbcc';
+
                             beforeEach(function () {
-                                configWriterDeferred.resolve();
-
-                                $rootScope.$digest();
+                                scope.selectedColor = newColor;
+                                scope.save();
                             });
 
-                            it('update rootScope with new value', function () {
-                                expect($rootScope.theme.color.primary).toEqual(newColor);
+                            it('working is on scope', function () {
+                                expect(scope.working).toBeTruthy();
                             });
 
-                            it('editModeRenderer is closed', function () {
-                                expect(editModeRenderer.close).toHaveBeenCalled();
+                            describe('on success', function () {
+                                beforeEach(function () {
+                                    configWriterDeferred.resolve();
+
+                                    $rootScope.$digest();
+                                });
+
+                                it('update rootScope with new value', function () {
+                                    expect($rootScope.theme.color.primary).toEqual(newColor);
+                                });
+
+                                it('editModeRenderer is closed', function () {
+                                    expect(editModeRenderer.close).toHaveBeenCalled();
+                                });
+                            });
+
+                            describe('on reject', function () {
+                                beforeEach(function () {
+                                    configWriterDeferred.reject();
+
+                                    $rootScope.$digest();
+                                });
+
+                                it('rejected is on scope', function () {
+                                    expect(scope.rejected).toBeTruthy();
+                                });
+
+                                it('editModeRenderer is not closed', function () {
+                                    expect(editModeRenderer.close).not.toHaveBeenCalled();
+                                });
+
+                                it('working is false', function () {
+                                    expect(scope.working).toBeFalsy();
+                                });
                             });
                         });
 
-                        describe('on reject', function () {
+                        describe('with invalid color', function () {
                             beforeEach(function () {
-                                configWriterDeferred.reject();
+                                scope.selectedColor = 'invalid';
+                                scope.save();
 
                                 $rootScope.$digest();
                             });
@@ -316,38 +344,17 @@ describe('bin.theme', function () {
                                 expect(scope.rejected).toBeTruthy();
                             });
 
-                            it('editModeRenderer is not closed', function () {
-                                expect(editModeRenderer.close).not.toHaveBeenCalled();
-                            });
-
                             it('working is false', function () {
                                 expect(scope.working).toBeFalsy();
                             });
                         });
                     });
 
-                    describe('with invalid color', function () {
-                        beforeEach(function () {
-                            scope.selectedColor = 'invalid';
-                            scope.save();
+                    it('on close, editModeRenderer is closed', function () {
+                        scope.close();
 
-                            $rootScope.$digest();
-                        });
-
-                        it('rejected is on scope', function () {
-                            expect(scope.rejected).toBeTruthy();
-                        });
-
-                        it('working is false', function () {
-                            expect(scope.working).toBeFalsy();
-                        });
+                        expect(editModeRenderer.close).toHaveBeenCalled();
                     });
-                });
-
-                it('on close, editModeRenderer is closed', function () {
-                    scope.close();
-
-                    expect(editModeRenderer.close).toHaveBeenCalled();
                 });
             });
         });
