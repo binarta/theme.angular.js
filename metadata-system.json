@@ -11,9 +11,9 @@
       "theme.color.picker.invalid.color": "Invalid color"
     },
     "fr":{
-      "theme.color.picker.select.title": "Select theme color:",
-      "theme.color.picker.selected.color": "Selected color:",
-      "theme.color.picker.invalid.color": "Invalid color"
+      "theme.color.picker.select.title": "Choisissez la couleur du thème:",
+      "theme.color.picker.selected.color": "Couleur sélectionnée:",
+      "theme.color.picker.invalid.color": "Couleur non valide"
     },
     "de":{
       "theme.color.picker.select.title": "Select theme color:",
