@@ -3,13 +3,11 @@
     angular.module('bin.theme', ['binarta-applicationjs-angular1', 'config', 'toggle.edit.mode'])
         .service('binTheme', ['binarta', '$q', 'config', 'configWriter', binThemeService])
         .controller('colorPickerController', ['$rootScope', 'editModeRenderer', 'binTheme', colorPickerController])
-        .run(['binartaIsInitialised', '$rootScope', 'binTheme', function (binartaIsInitialised, $rootScope, theme) {
-            binartaIsInitialised.then(function () {
-                if (!$rootScope.theme) $rootScope.theme = {};
-                if (!$rootScope.theme.color) $rootScope.theme.color = {};
-                theme.getPrimaryColor().then(function (color) {
-                    $rootScope.theme.color.primary = color;
-                });
+        .run(['$rootScope', 'binTheme', function ($rootScope, theme) {
+            if (!$rootScope.theme) $rootScope.theme = {};
+            if (!$rootScope.theme.color) $rootScope.theme.color = {};
+            theme.getPrimaryColor().then(function (color) {
+                $rootScope.theme.color.primary = color;
             });
         }]);
 
@@ -17,21 +15,21 @@
         var self = this;
         this.predefinedColors = ['#6abd45', '#40b040', '#338d7b', '#dcda50', '#dcc450', '#dca850', '#dc9150', '#dc6950', '#b94379', '#7f3891', '#554398', '#3d6091'];
         var defaultColor = self.predefinedColors[0];
-        var unlocked = false;
-        var deferredTasks = [];
 
         this.getPrimaryColor = function () {
             var deferred = $q.defer();
 
-            binarta.application.config.findPublic('theme.primary.color', function (value) {
-                var c = defaultColor;
-                if (value == '') c = config.defaultPrimaryColor || defaultColor;
-                if (isValidHexColor(value)) c = value;
-                else if (isLegacyThemeOption(value)) {
-                    var count = value.replace('theme-option-', '') - 1;
-                    c = count <= self.predefinedColors.length ? self.predefinedColors[count] : defaultColor;
-                }
-                deferred.resolve(c);
+            binarta.schedule(function () {
+                binarta.application.config.findPublic('theme.primary.color', function (value) {
+                    var c = defaultColor;
+                    if (value == '') c = config.defaultPrimaryColor || defaultColor;
+                    if (isValidHexColor(value)) c = value;
+                    else if (isLegacyThemeOption(value)) {
+                        var count = value.replace('theme-option-', '') - 1;
+                        c = count <= self.predefinedColors.length ? self.predefinedColors[count] : defaultColor;
+                    }
+                    deferred.resolve(c);
+                });
             });
 
             return deferred.promise;

@@ -35,27 +35,19 @@ describe('bin.theme', function () {
         config.defaultPrimaryColor = undefined;
     });
 
+    function triggerBinartaSchedule() {
+        binarta.application.adhesiveReading.read('-');
+    }
+
     describe('on module startup', function () {
-        describe('given binarta is not yet initialised', function () {
+        describe('given binarta is initialised', function () {
             beforeEach(function () {
+                binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: '#ccc'});
+                triggerBinartaSchedule();
                 $rootScope.$digest();
             });
-
-            it('root scope is unaffected', function () {
-                expect($rootScope.theme).toBeUndefined();
-            });
-        });
-
-        describe('given binarta is initialised', function () {
-            beforeEach(inject(function (binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised) {
-                binartaGatewaysAreInitialised.resolve();
-                binartaConfigIsInitialised.resolve();
-                binartaCachesAreInitialised.resolve();
-            }));
 
             it('then theme is exposed on root scope', function () {
-                binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: '#ccc'});
-                $rootScope.$digest();
                 expect($rootScope.theme.color.primary).toEqual('#ccc');
             });
         });
@@ -67,6 +59,7 @@ describe('bin.theme', function () {
         beforeEach(function() {
             binarta.application.gateway.clear();
             binarta.application.config.clear();
+            triggerBinartaSchedule();
             spy = jasmine.createSpy('spy');
         });
 
@@ -237,16 +230,14 @@ describe('bin.theme', function () {
         }));
 
         describe('given binarta is initialised', function () {
-            beforeEach(inject(function (binartaGatewaysAreInitialised, binartaConfigIsInitialised, binartaCachesAreInitialised) {
-                binartaGatewaysAreInitialised.resolve();
-                binartaConfigIsInitialised.resolve();
-                binartaCachesAreInitialised.resolve();
+            beforeEach(function () {
+                triggerBinartaSchedule();
                 $rootScope.$digest();
 
                 binarta.application.gateway.clear();
                 binarta.application.config.clear();
                 binarta.application.gateway.addPublicConfig({id: 'theme.primary.color', value: '#ccc'});
-            }));
+            });
 
             describe('on open', function () {
                 beforeEach(function () {
