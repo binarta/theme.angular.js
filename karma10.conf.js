@@ -5,6 +5,7 @@ module.exports = function(config) {
         files:[
             {pattern:'bower_components/angular/angular.js'},
             {pattern:'bower_components/angular-route/angular-route.js'},
+            {pattern:'bower_components/moment/moment.js'},
             {pattern:'bower_components/binartajs/src/binarta.js'},
             {pattern:'bower_components/binartajs/src/application.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
@@ -14,9 +15,10 @@ module.exports = function(config) {
             {pattern:'bower_components/binarta.web.storage.angular/src/web.storage.js'},
             {pattern:'bower_components/binarta.web.storage/src/web.storage.js'},
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
+            {pattern:'src/theme.js'},
             {pattern:'src/**/*.js'},
             {pattern:'test/**/*.js'}
         ],
-        browsers:['PhantomJS']
+        browsers:['ChromeHeadless']
     });
 };
