@@ -1,9 +1,20 @@
 {
+  "scripts": {
+    "test": "karma start karma10.conf.js --single-run",
+    "test:watch": "karma start karma10.conf.js",
+    "templates": "npm run templates:all",
+    "templates:all": "gulp"
+  },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-angular-templatecache": "^2.2.0",
+    "gulp-minify-html": "^1.0.6",
+    "gulp-template": "^5.0.0",
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
     "karma-jasmine": "^1.0.2",
     "karma-phantomjs-launcher": "^1.0.0",
-    "phantomjs": "^2.1.1"
+    "phantomjs": "^2.1.1",
+    "karma-chrome-launcher": "^2.2.0"
   }
 }
