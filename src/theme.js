@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('bin.theme', ['binarta-applicationjs-angular1', 'config', 'toggle.edit.mode'])
+    angular.module('bin.theme', ['bin.theme.templates', 'binarta-applicationjs-angular1', 'config', 'toggle.edit.mode'])
         .service('binTheme', ['binarta', '$q', 'config', 'configWriter', binThemeService])
         .controller('colorPickerController', ['$rootScope', 'editModeRenderer', 'binTheme', colorPickerController])
         .run(['$rootScope', 'binTheme', function ($rootScope, theme) {
@@ -96,76 +96,12 @@
             var rendererScope = $rootScope.$new();
 
             editModeRenderer.open({
-                template: '<form ng-submit="save()">' +
-                '<div class="bin-menu-edit-body">' +
-
-                '<div class="alert alert-danger" ng-show="rejected">' +
-                '<i class="fa fa-exclamation-triangle"></i> ' +
-                '<span i18n code="theme.color.picker.invalid.color" read-only ng-bind="::var"></span>' +
-                '</div>' +
-
-                '<h4 i18n code="theme.color.picker.select.title" read-only ng-bind="::var"></h4>' +
-                '<div class="form-group">' +
-                '<button type="button" class="color-picker-block" ng-class="{active: selectedColor == c}" ' +
-                'ng-repeat="c in predefinedColors" ng-style="{backgroundColor: c, borderColor: c}" ' +
-                'ng-click="selectColor(c)">' +
-                '</button>' +
-                '</div>' +
-
-                '<hr>' +
-
-                '<div class="form-group">' +
-                '<table>' +
-                '<tr>' +
-                '<th style="padding-right: 15px;" i18n code="theme.color.picker.selected.color" read-only ng-bind="::var"></th>' +
-                '<td>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon" ng-style="{backgroundColor: selectedColor}">' +
-                '<span ng-hide="working"><i class="fa fa-fw"></i></span>' +
-                '<span ng-show="working"><i class="fa fa-spinner fa-fw fa-spin"></i></span>' +
-                '</span>' +
-                '<input type="text" class="form-control" style="width: 100px;" ng-model="selectedColor">' +
-                '</div>' +
-                '</td>' +
-                '</tr>' +
-                '</table>' +
-                '</div>' +
-                '</div>' +
-                '<div class="bin-menu-edit-actions">' +
-                '<button type="submit" class="btn btn-primary" i18n code="clerk.menu.save.button" read-only ng-bind="::var"></button>' +
-                '<button type="button" class="btn btn-default" ng-click="close()" i18n code="clerk.menu.close.button" read-only ng-bind="::var"></button>' +
-                '</div>' +
-                '</form>',
+                template: '<bin-color-picker on-close="close()"></bin-color-picker>',
                 scope: rendererScope
-            });
-
-            rendererScope.working = true;
-            rendererScope.predefinedColors = theme.predefinedColors;
-
-            theme.getPrimaryColor().then(function (color) {
-                rendererScope.selectedColor = color;
-                rendererScope.working = false;
             });
 
             rendererScope.close = function () {
                 editModeRenderer.close();
-            };
-
-            rendererScope.selectColor = function (color) {
-                rendererScope.selectedColor = color;
-            };
-
-            rendererScope.save = function () {
-                rendererScope.working = true;
-                rendererScope.rejected = false;
-
-                theme.updatePrimaryColor(rendererScope.selectedColor).then(function () {
-                    $rootScope.theme.color.primary = rendererScope.selectedColor;
-                    editModeRenderer.close();
-                }, function () {
-                    rendererScope.rejected = true;
-                    rendererScope.working = false;
-                });
             };
         };
     }
