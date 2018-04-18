@@ -2,7 +2,7 @@
     'use strict';
     angular.module('bin.theme')
         .component('binColorPicker', new BinColorPickerComponent())
-        .controller('binColorPickerController', ['$rootScope', 'binTheme', BinColorPickerController])
+        .controller('binColorPickerController', ['$rootScope', 'binTheme', 'styleService', BinColorPickerController])
     ;
 
     function BinColorPickerComponent() {
@@ -14,9 +14,10 @@
         }
     }
 
-    function BinColorPickerController($rootScope, theme) {
+    function BinColorPickerController($rootScope, theme, styleService, config) {
         this.$rootScope = $rootScope;
         this.theme = theme;
+        this.styleService = styleService;
     }
 
     BinColorPickerController.prototype.$onInit = function() {
@@ -28,15 +29,28 @@
             self.selectedColor = color;
             self.working = false;
         });
-    }
+    };
 
     BinColorPickerController.prototype.close = function() {
         this.onClose();
-    }
+    };
 
     BinColorPickerController.prototype.selectColor = function(color) {
         this.selectedColor = color;
-    }
+        this.hotSwapStyles(color);
+    };
+
+    BinColorPickerController.prototype.hotSwapStyles = function(color) {
+        var defaultHref = this.styleService.defaults['app-style'].href;
+        if (defaultHref.indexOf('?') === -1) defaultHref += '?';
+        else defaultHref+= '&';
+        this.working = true;
+        this.styleService.update('app-style', {
+            href: defaultHref + 'compile&primaryColor='+ color.replace('#', '%23')
+        }).then(function() {
+            this.working = false;
+        }.bind(this));
+    };
 
     BinColorPickerController.prototype.save = function() {
         var self = this;

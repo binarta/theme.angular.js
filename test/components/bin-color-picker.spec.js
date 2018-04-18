@@ -5,6 +5,7 @@ describe('binColorPicker', function() {
     var component = undefined;
     var theme = undefined;
     var onClose = undefined;
+    var styleService = undefined;
 
     beforeEach(module('bin.theme'));
 
@@ -16,8 +17,12 @@ describe('binColorPicker', function() {
             getPrimaryColor: jasmine.createSpy('getPrimaryColor'),
             updatePrimaryColor: jasmine.createSpy('updatePrimaryColor')
         };
+        styleService = {
+            defaults: {},
+            update: jasmine.createSpy('styleService#update')
+        };
         onClose = jasmine.createSpy('onClose');
-        component = $componentController('binColorPicker', {binTheme: theme}, {onClose:onClose});
+        component = $componentController('binColorPicker', {binTheme: theme, styleService: styleService}, {onClose:onClose});
     }));
 
     describe('$onInit', function() {
@@ -56,14 +61,52 @@ describe('binColorPicker', function() {
             });
 
             describe('selectColor', function() {
+                var deferred = undefined;
+
                 beforeEach(function() {
+                    deferred = $q.defer();
+                    styleService.defaults['app-style'] = {
+                        href: 'href'
+                    };
+                    styleService.update.and.returnValue(deferred.promise);
                     component.selectColor('#ffffff');
                 });
     
                 it('should set the selected color', function() {
                     expect(component.selectedColor).toEqual('#ffffff');
                 });
-    
+
+                it('should update app-style href', function() {
+                    expect(styleService.update).toHaveBeenCalledWith('app-style', {
+                        href: 'href?compile&primaryColor=%23ffffff'
+                    });
+                });
+
+                it('should flag the component as working', function() {
+                    expect(component.working).toBe(true);
+                });
+
+                it('should support the default href to already have a query param', function() {
+                    styleService.defaults['app-style'] = {
+                        href: 'href?otherParam=this'
+                    };
+                    component.selectColor('#ffffff');
+                    expect(styleService.update).toHaveBeenCalledWith('app-style', {
+                        href: 'href?otherParam=this&compile&primaryColor=%23ffffff'
+                    });
+                });
+
+                describe('and the update is finished', function() {
+                    beforeEach(function() {
+                        deferred.resolve();
+                        $rootScope.$digest()
+                    });
+
+                    it('should flag the component as no longer working', function() {
+                        expect(component.working).toBe(false);
+                    })
+                });
+
                 describe('save', function() {
                     var updatePrimaryColorDeferred = undefined;
 
