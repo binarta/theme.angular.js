@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('bin.theme', ['bin.theme.templates', 'binarta-applicationjs-angular1', 'config', 'toggle.edit.mode'])
+    angular.module('bin.theme', ['bin.theme.templates', 'binarta-applicationjs-angular1', 'config', 'toggle.edit.mode', 'rest.client'])
         .service('binTheme', ['binarta', '$q', 'config', 'configWriter', binThemeService])
         .controller('colorPickerController', ['$rootScope', 'editModeRenderer', 'binTheme', colorPickerController])
         .run(['$rootScope', 'binTheme', function ($rootScope, theme) {
