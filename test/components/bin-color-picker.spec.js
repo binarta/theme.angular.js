@@ -6,12 +6,16 @@ describe('binColorPicker', function() {
     var theme = undefined;
     var onClose = undefined;
     var styleService = undefined;
+    var binThemeConfig = undefined;
+    var localStorage = undefined;
 
     beforeEach(module('bin.theme'));
 
-    beforeEach(inject(function($componentController, _$q_, _$rootScope_) {
+    beforeEach(inject(function($componentController, _$q_, _$rootScope_, _binThemeConfig_, _localStorage_) {
         $q = _$q_;
         $rootScope = _$rootScope_;
+        binThemeConfig = _binThemeConfig_;
+        localStorage = _localStorage_;
         theme = {
             predefinedColors: ['#000000', '#ffffff'],
             getPrimaryColor: jasmine.createSpy('getPrimaryColor'),
@@ -24,6 +28,14 @@ describe('binColorPicker', function() {
         onClose = jasmine.createSpy('onClose');
         component = $componentController('binColorPicker', {binTheme: theme, styleService: styleService}, {onClose:onClose});
     }));
+
+    afterEach(function() {
+        localStorage.clear();
+    });
+
+    it('should expose the isDynamicStylesEnabled flag from the config', function() {
+        expect(component.isDynamicStylesEnabled).toEqual(binThemeConfig.isDynamicStylesEnabled);
+    });
 
     describe('$onInit', function() {
         var getPrimaryColorDeferred = undefined;
@@ -124,6 +136,11 @@ describe('binColorPicker', function() {
                         expect(component.rejected).toBe(false);
                     });
 
+                    it('should store the new href in localStorage', function() {
+                        var cache = JSON.parse(localStorage.getItem('binThemeCache'));
+                        expect(cache.href).toEqual('href?compile&primaryColor=%23ffffff');
+                    });
+
                     it('should call updatePrimaryColor on theme service', function() {
                         expect(theme.updatePrimaryColor).toHaveBeenCalledWith(component.selectedColor);
                     });
@@ -164,6 +181,32 @@ describe('binColorPicker', function() {
                     })
                 })
             });
+
+            describe('selectColor with disabled dynamic styles', function() {
+                beforeEach(function() {
+                    binThemeConfig.disableDynamicStyles();
+                    component.selectColor('#ffffff');
+                });
+
+                it('should not have flagged the component as working', function() {
+                    expect(component.working).toBe(false);
+                });
+
+                it('should not update the styles', function() {
+                    expect(styleService.update).not.toHaveBeenCalled();
+                });
+
+                describe('and save', function() {
+                    beforeEach(function() {
+                        theme.updatePrimaryColor.and.returnValue($q.when());
+                        component.save();
+                    });
+
+                    it('should not store anything in localStorage', function() {
+                        expect(localStorage.getItem('binThemeCache')).toBeNull();
+                    })
+                })
+            })
         });
 
 

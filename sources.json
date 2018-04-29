@@ -1,5 +1,7 @@
 {
   "default": {
-    "theme":"bower_components/binarta.theme.angular/src/**/*.js"
+    "main":"bower_components/binarta.theme.angular/src/theme.js",
+    "templates":"bower_components/binarta.theme.angular/src/theme-tpls-bootstrap3.js",
+    "theme":"bower_components/binarta.theme.angular/src/*/**/*.js"
   }
 }

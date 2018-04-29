@@ -37,6 +37,10 @@
         </div>
     </div>
     <div class="bin-menu-edit-actions">
+        <button ng-if="picker.isDynamicStylesEnabled" type="button" class="btn btn-default pull-left" ng-click="picker.selectColor(picker.selectedColor)">
+            <span ng-hide="picker.working" i18n code="clerk.menu.preview.button" read-only ng-bind="::var"></span>
+            <span ng-show="picker.working"><i class="fa fa-fw fa-spinner fa-spin"></i></span>
+        </button>
         <button type="submit" class="btn btn-primary" i18n code="clerk.menu.save.button" read-only ng-bind="::var"></button>
         <button type="button" class="btn btn-default" ng-click="picker.close()" i18n code="clerk.menu.close.button" read-only ng-bind="::var"></button>
     </div>
